@@ -17,8 +17,8 @@ class Dice:
 
     def roll(self):
         """Roll both dice and return their combined total."""
-        self.die1 = random.randint(1, 5)
-        self.die2 = random.randint(1, 5)
+        self.die1 = random.randint(1, 6)  # Fixed: Standard 6-sided die
+        self.die2 = random.randint(1, 6)  # Fixed: Standard 6-sided die
         if self.is_doubles():
             self.doubles_streak += 1
         else:
