@@ -10,18 +10,21 @@ def print_banner(title):
 
 def print_player_card(player):
     """Print a detailed status card for a single player."""
-    jail_line = f"  Status  : IN JAIL (turn {player.jail_turns}/3)\n" if player.in_jail else ""
+    if player.jail_status["in_jail"]:
+        jail_line = f"  Status  : IN JAIL (turn {player.jail_status['turns']}/3)\n"
+    else:
+        jail_line = ""
     print(f"\n  Player  : {player.name}")
     print(f"  Balance : ${player.balance:,}")
     print(f"  Worth   : ${player.net_worth():,}")
     print(f"  Position: {player.position}")
     print(jail_line, end="")
-    if player.get_out_of_jail_cards:
-        print(f"  Jail cards: {player.get_out_of_jail_cards}")
+    if player.jail_status['cards']:
+        print(f"  Jail cards: {player.jail_status['cards']}")
     if player.properties:
         print("  Properties:")
         for prop in player.properties:
-            tag = " [MORTGAGED]" if prop.is_mortgaged else ""
+            tag = " [MORTGAGED]" if prop.finance["is_mortgaged"] else ""
             print(f"    {prop.name:<32} rent ${prop.get_rent()}{tag}")
     else:
         print("  Properties: none")
@@ -32,7 +35,7 @@ def print_standings(players):
     print("\n  [ Standings ]")
     ranked = sorted(players, key=lambda p: p.net_worth(), reverse=True)
     for i, player in enumerate(ranked, start=1):
-        jail_tag = " [JAILED]" if player.in_jail else ""
+        jail_tag = " [JAILED]" if player.jail_status['in_jail'] else ""
         print(
             f"  {i}. {player.name:<16} "
             f"${player.balance:>6,}  "
@@ -48,10 +51,10 @@ def print_board_ownership(board):
     print("  " + "-" * 64)
     for prop in board.properties:
         owner = prop.owner.name if prop.owner else "---"
-        mortgage_flag = "*" if prop.is_mortgaged else " "
+        mortgage_flag = "*" if prop.finance["is_mortgaged"] else " "
         print(
             f"  {prop.position:>3}  {prop.name:<32}  "
-            f"${prop.price:>4}  ${prop.get_rent():>3}  "
+            f"${prop.finance['price']:>4}  ${prop.get_rent():>3}  "
             f"{mortgage_flag}{owner}"
         )
     print("  (* = mortgaged)")

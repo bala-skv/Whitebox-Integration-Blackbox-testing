@@ -1,62 +1,52 @@
 """Module for managing property tiles and groups."""
 class Property:
-    """Represents a single purchasable property tile on the MoneyPoly board."""
+    """Represents a purchasable property tile on the MoneyPoly board."""
 
     FULL_GROUP_MULTIPLIER = 2
 
-    def __init__(self, name, position, price, base_rent, group=None):
+    def __init__(self, name, position, pricing, group=None):
+        """Pricing is a dict: {'price': X, 'rent': Y}."""
         self.name = name
         self.position = position
-        self.price = price
-        self.base_rent = base_rent
-        self.mortgage_value = price // 2
-        self.owner = None
-        self.is_mortgaged = False
-        self.houses = 0
-
-        # Register with the group immediately on creation
         self.group = group
+        self.owner = None
+        self.houses = 0
+        # Grouped into a finance dict to resolve R0902
+        self.finance = {
+            "price": pricing["price"],
+            "base_rent": pricing["rent"],
+            "mortgage_value": pricing["price"] // 2,
+            "is_mortgaged": False
+        }
+
         if group is not None and self not in group.properties:
             group.properties.append(self)
-
     def get_rent(self):
-        """
-        Return the rent owed for landing on this property.
-        Rent is doubled if the owner holds the entire colour group.
-        Returns 0 if the property is mortgaged.
-        """
-        if self.is_mortgaged:
+        """Return the rent owed; returns 0 if the property is mortgaged."""
+        if self.finance["is_mortgaged"]: # Updated 
             return 0
         if self.group is not None and self.group.all_owned_by(self.owner):
-            return self.base_rent * self.FULL_GROUP_MULTIPLIER
-        return self.base_rent
+            return self.finance["base_rent"] * self.FULL_GROUP_MULTIPLIER # Updated 
+        return self.finance["base_rent"] # Updated 
 
     def mortgage(self):
-        """
-        Mortgage this property and return the payout to the owner.
-        Returns 0 if already mortgaged.
-        """
-        if self.is_mortgaged:
+        """Mortgage the property and return the payout."""
+        if self.finance["is_mortgaged"]: # Updated 
             return 0
-        self.is_mortgaged = True
-        return self.mortgage_value
+        self.finance["is_mortgaged"] = True # Updated 
+        return self.finance["mortgage_value"] # Updated 
 
     def unmortgage(self):
-        """
-        Lift the mortgage on this property.
-        Returns the cost (110 % of mortgage value), or 0 if not mortgaged.
-        """
-        if not self.is_mortgaged:
+        """Lift the mortgage and return the cost."""
+        if not self.finance["is_mortgaged"]: # Updated 
             return 0
-        # Fixed R1705: Removed redundant else
-        cost = int(self.mortgage_value * 1.1)
-        self.is_mortgaged = False
+        cost = int(self.finance["mortgage_value"] * 1.1) # Updated 
+        self.finance["is_mortgaged"] = False # Updated 
         return cost
 
     def is_available(self):
-        """Return True if this property can be purchased (unowned, not mortgaged)."""
-        return self.owner is None and not self.is_mortgaged
-
+        """Return True if unowned and not mortgaged."""
+        return self.owner is None and not self.finance["is_mortgaged"] # Updated
     def __repr__(self):
         owner_name = self.owner.name if self.owner else "unowned"
         return f"Property({self.name!r}, pos={self.position}, owner={owner_name!r})"

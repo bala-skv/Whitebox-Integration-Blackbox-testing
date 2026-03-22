@@ -54,28 +54,28 @@ class Board:
         """Instantiate every purchasable property and return as a list."""
         g = self.groups
         return [
-            Property("Mediterranean Avenue",   1,  60,  2,  g["brown"]),
-            Property("Baltic Avenue",          3,  60,  4,  g["brown"]),
-            Property("Oriental Avenue",        6,  100, 6,  g["light_blue"]),
-            Property("Vermont Avenue",         8,  100, 6,  g["light_blue"]),
-            Property("Connecticut Avenue",     9,  120, 8,  g["light_blue"]),
-            Property("St. Charles Place",      11, 140, 10, g["pink"]),
-            Property("States Avenue",          13, 140, 10, g["pink"]),
-            Property("Virginia Avenue",        14, 160, 12, g["pink"]),
-            Property("St. James Place",        16, 180, 14, g["orange"]),
-            Property("Tennessee Avenue",       18, 180, 14, g["orange"]),
-            Property("New York Avenue",        19, 200, 16, g["orange"]),
-            Property("Kentucky Avenue",        21, 220, 18, g["red"]),
-            Property("Indiana Avenue",         23, 220, 18, g["red"]),
-            Property("Illinois Avenue",        24, 240, 20, g["red"]),
-            Property("Atlantic Avenue",        26, 260, 22, g["yellow"]),
-            Property("Ventnor Avenue",         27, 260, 22, g["yellow"]),
-            Property("Marvin Gardens",         29, 280, 24, g["yellow"]),
-            Property("Pacific Avenue",         31, 300, 26, g["green"]),
-            Property("North Carolina Avenue",  32, 300, 26, g["green"]),
-            Property("Pennsylvania Avenue",    34, 320, 28, g["green"]),
-            Property("Park Place",             37, 350, 35, g["dark_blue"]),
-            Property("Boardwalk",              39, 400, 50, g["dark_blue"]),
+            Property("Mediterranean Avenue",   1,  {"price": 60,  "rent": 2},  g["brown"]),
+            Property("Baltic Avenue",          3,  {"price": 60,  "rent": 4},  g["brown"]),
+            Property("Oriental Avenue",        6,  {"price": 100, "rent": 6},  g["light_blue"]),
+            Property("Vermont Avenue",         8,  {"price": 100, "rent": 6},  g["light_blue"]),
+            Property("Connecticut Avenue",     9,  {"price": 120, "rent": 8},  g["light_blue"]),
+            Property("St. Charles Place",      11, {"price": 140, "rent": 10}, g["pink"]),
+            Property("States Avenue",          13, {"price": 140, "rent": 10}, g["pink"]),
+            Property("Virginia Avenue",        14, {"price": 160, "rent": 12}, g["pink"]),
+            Property("St. James Place",        16, {"price": 180, "rent": 14}, g["orange"]),
+            Property("Tennessee Avenue",       18, {"price": 180, "rent": 14}, g["orange"]),
+            Property("New York Avenue",        19, {"price": 200, "rent": 16}, g["orange"]),
+            Property("Kentucky Avenue",        21, {"price": 220, "rent": 18}, g["red"]),
+            Property("Indiana Avenue",         23, {"price": 220, "rent": 18}, g["red"]),
+            Property("Illinois Avenue",        24, {"price": 240, "rent": 20}, g["red"]),
+            Property("Atlantic Avenue",        26, {"price": 260, "rent": 22}, g["yellow"]),
+            Property("Ventnor Avenue",         27, {"price": 260, "rent": 22}, g["yellow"]),
+            Property("Marvin Gardens",         29, {"price": 280, "rent": 24}, g["yellow"]),
+            Property("Pacific Avenue",         31, {"price": 300, "rent": 26}, g["green"]),
+            Property("North Carolina Avenue",  32, {"price": 300, "rent": 26}, g["green"]),
+            Property("Pennsylvania Avenue",    34, {"price": 320, "rent": 28}, g["green"]),
+            Property("Park Place",             37, {"price": 350, "rent": 35}, g["dark_blue"]),
+            Property("Boardwalk",              39, {"price": 400, "rent": 50}, g["dark_blue"]),
         ]
 
     def get_property_at(self, position):
@@ -99,14 +99,12 @@ class Board:
         return "blank"
 
     def is_purchasable(self, position):
-        """
-        Return True if the tile at `position` is a property that can be bought.
-        Mortgaged properties are not considered purchasable.
-        """
+        """Return True if the tile at position is a property that can be bought."""
         prop = self.get_property_at(position)
         if prop is None:
             return False
-        if prop.is_mortgaged:
+        # Updated to access dictionary
+        if prop.finance["is_mortgaged"]:
             return False
         return prop.owner is None
 

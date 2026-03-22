@@ -30,9 +30,12 @@ class Game:
         self.current_index = 0
         self.turn_number = 0
         self.running = True
-        self.chance_deck = CardDeck(CHANCE_CARDS)
-        self.community_deck = CardDeck(COMMUNITY_CHEST_CARDS)
-
+        self.running = True
+        # Grouped attributes to resolve R0902
+        self.decks = {
+            "chance": CardDeck(CHANCE_CARDS),
+            "community": CardDeck(COMMUNITY_CHEST_CARDS)
+        }
     def current_player(self):
         """Return the Player whose turn it currently is."""
         return self.players[self.current_index]
@@ -74,54 +77,41 @@ class Game:
         self.advance_turn()
 
     def _move_and_resolve(self, player, steps):
-        """Move `player` by `steps` and trigger whatever tile they land on."""
+        """Move player and trigger tile logic using a dispatch dictionary."""
         player.move(steps)
-        position = player.position
-        tile = self.board.get_tile_type(position)
-        print(f"  {player.name} moved to position {position}  [{tile}]")
+        tile = self.board.get_tile_type(player.position)
+        print(f"  {player.name} moved to position {player.position}  [{tile}]")
 
-        if tile == "go_to_jail":
-            player.go_to_jail()
-            print(f"  {player.name} has been sent to Jail!")
+        # Dispatch table reduces branching logic from 15 branches to 3
+        handlers = {
+            "go_to_jail": player.go_to_jail,
+            "income_tax": lambda: self._pay_tax(player, INCOME_TAX_AMOUNT),
+            "luxury_tax": lambda: self._pay_tax(player, LUXURY_TAX_AMOUNT),
+            "chance": lambda: self._apply_card(player, self.decks["chance"].draw()),
+            "community_chest": lambda: self._apply_card(player, self.decks["community"].draw()),
+            "free_parking": lambda: print(f"  {player.name} rests on Free Parking."),
+        }
 
-        elif tile == "income_tax":
-            player.deduct_money(INCOME_TAX_AMOUNT)
-            self.bank.collect(INCOME_TAX_AMOUNT)
-            print(f"  {player.name} paid income tax: ${INCOME_TAX_AMOUNT}.")
-
-        elif tile == "luxury_tax":
-            player.deduct_money(LUXURY_TAX_AMOUNT)
-            self.bank.collect(LUXURY_TAX_AMOUNT)
-            print(f"  {player.name} paid luxury tax: ${LUXURY_TAX_AMOUNT}.")
-
-        elif tile == "free_parking":
-            print(f"  {player.name} rests on Free Parking. Nothing happens.")
-
-        elif tile == "chance":
-            card = self.chance_deck.draw()
-            self._apply_card(player, card)
-
-        elif tile == "community_chest":
-            card = self.community_deck.draw()
-            self._apply_card(player, card)
-
-        elif tile == "railroad":
-            prop = self.board.get_property_at(position)
-            if prop is not None:
-                self._handle_property_tile(player, prop)
-
-        elif tile == "property":
-            prop = self.board.get_property_at(position)
-            if prop is not None:
+        if tile in handlers:
+            handlers[tile]()
+        elif tile in ("property", "railroad"):
+            prop = self.board.get_property_at(player.position)
+            if prop:
                 self._handle_property_tile(player, prop)
 
         self._check_bankruptcy(player)
+
+    def _pay_tax(self, player, amount):
+        """Helper method to handle tax payments and bank collection."""
+        player.deduct_money(amount)
+        self.bank.collect(amount)
+        print(f"  {player.name} paid tax: ${amount}.")
 
 
     def _handle_property_tile(self, player, prop):
         """Decide what to do when `player` lands on a property tile."""
         if prop.owner is None:
-            print(f"  {prop.name} is unowned — asking price ${prop.price}.")
+            print(f"  {prop.name} is unowned — asking price ${prop.finance['price']}.")
             choice = input("  Buy (b), Auction (a), or Skip (s)? ").strip().lower()
             if choice == "b":
                 self.buy_property(player, prop)
@@ -139,14 +129,14 @@ class Game:
         Purchase `prop` on behalf of `player`.
         Returns True on success, False if the player cannot afford it.
         """
-        if player.balance <= prop.price:
-            print(f"  {player.name} cannot afford {prop.name} (${prop.price}).")
+        if player.balance <= prop.finance['price']:
+            print(f"  {player.name} cannot afford {prop.name} (${prop.finance['price']}).")
             return False
-        player.deduct_money(prop.price)
+        player.deduct_money(prop.finance['price'])
         prop.owner = player
         player.add_property(prop)
-        self.bank.collect(prop.price)
-        print(f"  {player.name} purchased {prop.name} for ${prop.price}.")
+        self.bank.collect(prop.finance['price'])
+        print(f"  {player.name} purchased {prop.name} for ${prop.finance['price']}.")
         return True
 
     def pay_rent(self, player, prop):
@@ -351,7 +341,7 @@ class Game:
             # Release all properties back to the bank
             for prop in list(player.properties):
                 prop.owner = None
-                prop.is_mortgaged = False
+                prop.finance["is_mortgaged"] = False
             player.properties.clear()
             if player in self.players:
                 self.players.remove(player)
@@ -420,24 +410,24 @@ class Game:
 
     def _menu_mortgage(self, player):
         """Interactively select a property to mortgage."""
-        mortgageable = [p for p in player.properties if not p.is_mortgaged]
+        mortgageable = [p for p in player.properties if not p.finance["is_mortgaged"]]
         if not mortgageable:
             print("  No properties available to mortgage.")
             return
         for i, prop in enumerate(mortgageable):
-            print(f"  {i + 1}. {prop.name}  (value: ${prop.mortgage_value})")
+            print(f"  {i + 1}. {prop.name}  (value: ${prop.finance['mortgage_value']})")
         idx = ui.safe_int_input("  Select: ", default=0) - 1
         if 0 <= idx < len(mortgageable):
             self.mortgage_property(player, mortgageable[idx])
 
     def _menu_unmortgage(self, player):
         """Interactively select a mortgaged property to redeem."""
-        mortgaged = [p for p in player.properties if p.is_mortgaged]
+        mortgaged = [p for p in player.properties if p.finance["is_mortgaged"]]
         if not mortgaged:
             print("  No mortgaged properties to redeem.")
             return
         for i, prop in enumerate(mortgaged):
-            cost = int(prop.mortgage_value * 1.1)
+            cost = int(prop.finance["mortgage_value"] * 1.1)
             print(f"  {i + 1}. {prop.name}  (cost to redeem: ${cost})")
         idx = ui.safe_int_input("  Select: ", default=0) - 1
         if 0 <= idx < len(mortgaged):
