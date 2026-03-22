@@ -48,7 +48,6 @@ class Property:
         """
         if not self.is_mortgaged:
             return 0
-        
         # Fixed R1705: Removed redundant else
         cost = int(self.mortgage_value * 1.1)
         self.is_mortgaged = False
