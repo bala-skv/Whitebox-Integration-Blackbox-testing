@@ -1,3 +1,4 @@
+"""Module for managing property tiles and groups."""
 class Property:
     """Represents a single purchasable property tile on the MoneyPoly board."""
 
@@ -63,6 +64,7 @@ class Property:
 
 
 class PropertyGroup:
+    """A group of properties of the same color."""
     def __init__(self, name, color):
         self.name = name
         self.color = color

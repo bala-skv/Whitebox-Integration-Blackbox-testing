@@ -1,3 +1,4 @@
+"""Module for managing player state and actions."""
 import sys
 from moneypoly.config import STARTING_BALANCE, BOARD_SIZE, GO_SALARY, JAIL_POSITION
 
@@ -88,3 +89,4 @@ class Player:
 
     def __repr__(self):
         return f"Player({self.name!r}, balance={self.balance}, pos={self.position})"
+    

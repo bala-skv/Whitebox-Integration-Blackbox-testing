@@ -1,4 +1,4 @@
-import random
+"""Contains card definitions for Chance and Community Chest."""import random
 
 CHANCE_CARDS = [
     {"description": "Advance to Go. Collect $200.",                          "action": "move_to",  "value": 0},

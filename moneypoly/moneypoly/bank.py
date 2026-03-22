@@ -1,8 +1,10 @@
+"""Module for managing bank funds and player loans."""
 import math
 from moneypoly.config import BANK_STARTING_FUNDS
 
 
 class Bank:
+    """Represents the central bank in MoneyPoly."""
     def __init__(self):
         """
     Initialize the bank with starting funds and empty loan records.

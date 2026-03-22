@@ -1,3 +1,4 @@
+"""Main game loop and logic for MoneyPoly."""
 import os
 
 from moneypoly.config import (
@@ -21,6 +22,9 @@ class Game:
     """Manages the full state and flow of a MoneyPoly game session."""
 
     def __init__(self, player_names):
+        """
+    Initialize the game state with players, board, bank, and card decks.
+    """
         self.board = Board()
         self.bank = Bank()
         self.dice = Dice()
@@ -466,3 +470,4 @@ class Game:
             f"  Cash to receive from {partner.name}: $", default=0
         )
         self.trade(player, partner, chosen_prop, cash)
+        
