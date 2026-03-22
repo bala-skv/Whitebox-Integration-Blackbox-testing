@@ -1,8 +1,6 @@
 """Main game loop and logic for MoneyPoly."""
-import os
 
 from moneypoly.config import (
-    GO_TO_JAIL_POSITION,
     JAIL_FINE,
     AUCTION_MIN_INCREMENT,
     INCOME_TAX_AMOUNT,
@@ -470,4 +468,3 @@ class Game:
             f"  Cash to receive from {partner.name}: $", default=0
         )
         self.trade(player, partner, chosen_prop, cash)
-        
