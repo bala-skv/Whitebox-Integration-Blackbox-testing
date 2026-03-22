@@ -49,7 +49,7 @@ class Game:
             f"Turn {self.turn_number + 1}  |  {player.name}  |  ${player.balance}"
         )
 
-        if player.in_jail:
+        if player.jail_status["in_jail"]:
             self._handle_jail_turn(player)
             self.advance_turn()
             return
@@ -255,14 +255,14 @@ class Game:
 
     def _handle_jail_turn(self, player):
         """Process a jailed player's turn — offer to pay fine or use card."""
-        print(f"  {player.name} is in jail (turn {player.jail_turns + 1}/3).")
+        print(f"  {player.name} is in jail (turn {player.jail_status['turns'] + 1}/3).")
 
         # Use a Get Out of Jail Free card if available
-        if player.get_out_of_jail_cards > 0:
+        if player.jail_status['cards'] > 0:
             if ui.confirm("  Use your Get Out of Jail Free card? (y/n): "):
-                player.get_out_of_jail_cards -= 1
-                player.in_jail = False
-                player.jail_turns = 0
+                player.jail_status['cards'] -= 1
+                player.jail_status['in_jail'] = False
+                player.jail_status['turns'] = 0
                 print(f"  {player.name} used a Get Out of Jail Free card!")
                 roll = self.dice.roll()
                 print(f"  {player.name} rolled: {self.dice.describe()}")
@@ -315,7 +315,7 @@ class Game:
             print(f"  {player.name} has been sent to Jail!")
 
         elif action == "jail_free":
-            player.get_out_of_jail_cards += 1
+            player.jail_status['cards'] += 1
             print(f"  {player.name} now holds a Get Out of Jail Free card.")
 
         elif action == "move_to":

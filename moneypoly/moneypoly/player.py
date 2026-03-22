@@ -6,17 +6,18 @@ class Player:
     """Represents a single player in a MoneyPoly game."""
 
     def __init__(self, name, balance=STARTING_BALANCE):
-        """
-    Initialize a new player with a name, starting balance, and default position.
-    """
+        """Initialize a new player with grouped jail data."""
         self.name = name
         self.balance = balance
         self.position = 0
         self.properties = []
-        self.in_jail = False
-        self.jail_turns = 0
-        self.get_out_of_jail_cards = 0
         self.is_eliminated = False
+        # Grouped to resolve R0902 (8 attributes -> 6)
+        self.jail_status = {
+            "in_jail": False,
+            "turns": 0,
+            "cards": 0
+        }
 
 
     def add_money(self, amount):
@@ -56,8 +57,8 @@ class Player:
     def go_to_jail(self):
         """Send this player directly to the Jail square."""
         self.position = JAIL_POSITION
-        self.in_jail = True
-        self.jail_turns = 0
+        self.jail_status["in_jail"] = True  # Updated reference
+        self.jail_status["turns"] = 0       # Updated reference
 
 
     def add_property(self, prop):
@@ -77,7 +78,7 @@ class Player:
 
     def status_line(self):
         """Return a concise one-line status string for this player."""
-        jail_tag = " [JAILED]" if self.in_jail else ""
+        jail_tag = " [JAILED]" if self.jail_status["in_jail"] else "" # Updated
         return (
             f"{self.name}: ${self.balance}  "
             f"pos={self.position}  "
@@ -87,5 +88,4 @@ class Player:
 
     def __repr__(self):
         return f"Player({self.name!r}, balance={self.balance}, pos={self.position})"
-
 
