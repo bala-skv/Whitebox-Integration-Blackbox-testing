@@ -49,7 +49,7 @@ class Player:
         old_position = self.position
         self.position = (self.position + steps) % BOARD_SIZE
 
-        passed_go = self.position < old_position or self.position == 0
+        passed_go = (old_position + steps) >= BOARD_SIZE
         if passed_go:
             self.add_money(GO_SALARY)
             if self.position == 0:
