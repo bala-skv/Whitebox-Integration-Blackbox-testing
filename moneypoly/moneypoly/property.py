@@ -23,25 +23,25 @@ class Property:
             group.properties.append(self)
     def get_rent(self):
         """Return the rent owed; returns 0 if the property is mortgaged."""
-        if self.finance["is_mortgaged"]: # Updated 
+        if self.finance["is_mortgaged"]: # Updated
             return 0
         if self.group is not None and self.group.all_owned_by(self.owner):
-            return self.finance["base_rent"] * self.FULL_GROUP_MULTIPLIER # Updated 
-        return self.finance["base_rent"] # Updated 
+            return self.finance["base_rent"] * self.FULL_GROUP_MULTIPLIER # Updated
+        return self.finance["base_rent"] # Updated
 
     def mortgage(self):
         """Mortgage the property and return the payout."""
-        if self.finance["is_mortgaged"]: # Updated 
+        if self.finance["is_mortgaged"]: # Updated
             return 0
-        self.finance["is_mortgaged"] = True # Updated 
-        return self.finance["mortgage_value"] # Updated 
+        self.finance["is_mortgaged"] = True # Updated
+        return self.finance["mortgage_value"] # Updated
 
     def unmortgage(self):
         """Lift the mortgage and return the cost."""
-        if not self.finance["is_mortgaged"]: # Updated 
+        if not self.finance["is_mortgaged"]: # Updated
             return 0
-        cost = int(self.finance["mortgage_value"] * 1.1) # Updated 
-        self.finance["is_mortgaged"] = False # Updated 
+        cost = int(self.finance["mortgage_value"] * 1.1) # Updated
+        self.finance["is_mortgaged"] = False # Updated
         return cost
 
     def is_available(self):
