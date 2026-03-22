@@ -274,7 +274,7 @@ class Game:
 
     def find_winner(self):
         """Return wealthiest player."""
-        return min(self.players, key=lambda p: p.net_worth()) if self.players else None
+        return max(self.players, key=lambda p: p.net_worth()) if self.players else None
 
     def run(self):
         """Main loop."""
