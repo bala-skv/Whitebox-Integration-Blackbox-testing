@@ -42,6 +42,7 @@ class Registration:
             "name": name.strip(),
             "role": role,
             "registered_at": datetime.now().isoformat(),
+            "active": True,
         }
         return member_id
 
@@ -63,11 +64,13 @@ class Registration:
         Returns:
             True if removed, False if not found.
         """
-        if member_id in self._members:
-            del self._members[member_id]
+        if member_id in self._members and self._members[member_id].get("active", True):
+            self._members[member_id]["active"] = False
             return True
         return False
 
     def is_registered(self, member_id):
         """Check if a member ID is registered."""
-        return member_id in self._members
+        if member_id in self._members:
+            return self._members[member_id].get("active", True)
+        return False

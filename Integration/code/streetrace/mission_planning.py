@@ -77,16 +77,18 @@ class MissionPlanning:
             if not self._registration.is_registered(mid):
                 raise ValueError(f"Member '{mid}' is not registered.")
 
-        # Check that required roles are covered
-        assigned_roles = set()
+        # Check that required roles are covered (accounting for quantities)
+        required_roles = mission["required_roles"].copy()
+        
         for mid in member_ids:
             member = self._registration.get_member(mid)
-            assigned_roles.add(member["role"])
+            role = member["role"]
+            if role in required_roles:
+                required_roles.remove(role)
 
-        missing_roles = set(mission["required_roles"]) - assigned_roles
-        if missing_roles:
+        if required_roles:
             raise ValueError(
-                f"Mission requires roles not covered: {missing_roles}. "
+                f"Mission requires roles not covered: {required_roles}. "
                 "Cannot start mission without all required roles."
             )
 
