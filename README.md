@@ -51,4 +51,4 @@ python3 Whitebox/code/moneypoly/main.py
 
 Github link : https://github.com/bala-skv/Whitebox-Integration-Blackbox-testing
 
-OneDrive Link: https://iiithydresearch-my.sharepoint.com/personal/balasubramanian_k_research_iiit_ac_in/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fbalasubramanian%5Fk%5Fresearch%5Fiiit%5Fac%5Fin%2FDocuments%2F2025121002%2F%2Egit%2Fdescription&parent=%2Fpersonal%2Fbalasubramanian%5Fk%5Fresearch%5Fiiit%5Fac%5Fin%2FDocuments%2F2025121002%2F%2Egit&ga=1
+OneDrive Link: https://iiithydresearch-my.sharepoint.com/:f:/g/personal/balasubramanian_k_research_iiit_ac_in/IgA8GamFlrM2RZ0TTdNSXtI8AeH5woQLYi9e2KCGy-sK5hA?e=b1FMWj
