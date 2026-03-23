@@ -48,6 +48,8 @@ To run the main implementation for the Whitebox module:
 python3 Whitebox/code/moneypoly/main.py
 ```
 
+under the code section i have 3 sections /monopoly contains the corrected code after white box testing,/non corrected code contains the code before even pylinting, /pylint testing contains the code after pylint testing but before correction of whitebox test bugs
+
 
 Github link : https://github.com/bala-skv/Whitebox-Integration-Blackbox-testing
 
