@@ -89,6 +89,8 @@ class Inventory:
         car = self.get_car(car_id)
         if car is None:
             raise ValueError(f"Car '{car_id}' not found.")
+        if car["is_damaged"]:
+            return  # Already damaged, don't double penalty
         car["is_damaged"] = True
         car["condition"] = max(0, car["condition"] - 30)
 
