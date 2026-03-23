@@ -16,9 +16,6 @@ from garage import Garage
 from leaderboard import Leaderboard
 
 
-# ============================================================
-# Fixtures: set up a fresh system for each test
-# ============================================================
 
 @pytest.fixture
 def system():
@@ -38,14 +35,14 @@ def system():
     }
 
 
-# ============================================================
-# 1. Crew Management ↔ Registration
+
+""" 1. Crew Management ↔ Registration
 #    Call Graph edges:
 #      - _validate_member → is_registered
 #      - assign_role → get_member
 #      - get_by_role → list_members
 #      - is_role → get_member
-# ============================================================
+"""
 
 class TestCrewRegistrationIntegration:
     """Tests for Crew Management ↔ Registration interactions."""
@@ -98,15 +95,14 @@ class TestCrewRegistrationIntegration:
         assert system["crew"].is_role(mid, "driver") is True
         assert system["crew"].is_role(mid, "mechanic") is False
 
-
-# ============================================================
+"""
 # 2. Race Management ↔ Registration + Crew Management + Inventory
 #    Call Graph edges:
 #      - enter_race → Registration.is_registered
 #      - enter_race → CrewManagement.is_role
 #      - enter_race → Inventory.is_car_available
 #      - complete_race → Inventory.damage_car
-# ============================================================
+"""
 
 class TestRaceEntryIntegration:
     """Tests for Race Management entry validation across modules."""
@@ -210,14 +206,13 @@ class TestRaceDamageIntegration:
         with pytest.raises(ValueError, match="not available"):
             system["race"].enter_race(rid, did, cid)
 
-
-# ============================================================
+"""
 # 3. Results ↔ Race Management + Inventory
 #    Call Graph edges:
 #      - record_result → RaceManagement.get_race
 #      - calculate_prize → RaceManagement.get_race
 #      - calculate_prize → Inventory.add_cash
-# ============================================================
+"""
 
 class TestResultsIntegration:
     """Tests for Results module interacting with Race and Inventory."""
@@ -278,14 +273,12 @@ class TestResultsIntegration:
         with pytest.raises(ValueError, match="not entered"):
             system["results"].record_result(rid, [d2])  # d2 wasn't in race
 
-
-# ============================================================
+"""
 # 4. Mission Planning ↔ Registration + Crew Management
 #    Call Graph edges:
 #      - assign_mission → Registration.is_registered
 #      - assign_mission → Registration.get_member (to check roles)
-# ============================================================
-
+"""
 class TestMissionIntegration:
     """Tests for Mission Planning interacting with Registration and Crew."""
 
@@ -340,8 +333,7 @@ class TestMissionIntegration:
         with pytest.raises(ValueError, match="not registered"):
             system["missions"].assign_mission(mid, ["fake_id"])
 
-
-# ============================================================
+"""
 # 5. Garage ↔ Inventory + Crew Management
 #    Call Graph edges:
 #      - schedule_repair → Inventory.get_car
@@ -350,8 +342,7 @@ class TestMissionIntegration:
 #      - complete_repair → Inventory.repair_car
 #      - upgrade_car → Inventory.get_car
 #      - upgrade_car → Inventory.use_part
-# ============================================================
-
+"""
 class TestGarageIntegration:
     """Tests for Garage interacting with Inventory and Crew Management."""
 
@@ -441,13 +432,11 @@ class TestGarageIntegration:
         with pytest.raises(ValueError, match="damaged"):
             system["garage"].upgrade_car(cid, "turbo_kit", 10)
 
-
-# ============================================================
+"""
 # 6. Leaderboard ↔ Results + Registration
 #    Call Graph edges:
 #      - get_driver_stats → Registration.get_member
-# ============================================================
-
+"""
 class TestLeaderboardIntegration:
     """Tests for Leaderboard interacting with Results and Registration."""
 
@@ -512,10 +501,8 @@ class TestLeaderboardIntegration:
         assert standings[0][1]["points"] == 50
 
 
-# ============================================================
 # 7. Full End-to-End Integration
 #    All modules working together in realistic scenarios
-# ============================================================
 
 class TestFullIntegration:
     """End-to-end tests spanning all modules."""
@@ -605,11 +592,7 @@ class TestFullIntegration:
         assert system["missions"].get_mission(mid)["status"] == "completed"
 
 
-# ============================================================
-# 8. BUG-FINDING TESTS: Results – Double Prize Payout
-#    Bug: calculate_prize() has no guard against being called
-#    twice on the same race, causing the cash to be added again.
-# ============================================================
+#    Bug targetting test cases
 
 class TestBugDoublePrizePayout:
     """Tests exposing the double-prize-payout bug in Results."""
@@ -674,12 +657,6 @@ class TestBugDoublePrizePayout:
         )
 
 
-# ============================================================
-# 9. BUG-FINDING TESTS: Inventory – Double Damage
-#    Bug: damage_car() does not check if the car is already
-#    damaged. Calling it twice reduces condition by 60 instead
-#    of 30, and a third call could reduce it to 0.
-# ============================================================
 
 class TestBugDoubleDamage:
     """Tests exposing the double-damage bug in Inventory."""
@@ -722,12 +699,6 @@ class TestBugDoubleDamage:
         )
 
 
-# ============================================================
-# 10. BUG-FINDING TESTS: Race – Duplicate Driver Across Races
-#     Bug: enter_race() only checks duplicates within the same
-#     race, not across multiple open races. A driver could enter
-#     two races simultaneously.
-# ============================================================
 
 class TestBugDuplicateDriverAcrossRaces:
     """Tests exposing the cross-race duplicate entry bug."""
@@ -765,14 +736,7 @@ class TestBugDuplicateDriverAcrossRaces:
             system["race"].enter_race(r2, d2, cid)
 
 
-# ============================================================
-# 11. BUG-FINDING TESTS: Mission Planning – Duplicate Roles
-#     Bug: assign_mission() uses set() subtraction to check
-#     if required roles are met. If a mission requires 2 of
-#     the same role (e.g., ["driver", "driver"]), assigning
-#     just 1 driver satisfies the check because
-#     {"driver"} - {"driver"} = empty set!
-# ============================================================
+
 
 class TestBugMissionRoleCount:
     """Tests exposing the role counting bug in Mission Planning."""
@@ -792,12 +756,6 @@ class TestBugMissionRoleCount:
             system["missions"].assign_mission(mid, [mech])
 
 
-# ============================================================
-# 12. BUG-FINDING TESTS: Registration – Removing Active Member
-#     Bug: remove_member() deletes a member immediately without
-#     checking if they are active in races/missions, leaving
-#     dangling IDs in other modules.
-# ============================================================
 
 class TestBugRemoveActiveMember:
     """Tests exposing stale data bug when removing members."""
