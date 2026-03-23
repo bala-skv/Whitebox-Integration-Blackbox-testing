@@ -788,13 +788,8 @@ class TestBugMissionRoleCount:
             "Big Repair", "rescue", ["mechanic", "mechanic"]
         )
         # We only assign ONE mechanic, but it needs TWO
-        system["missions"].assign_mission(mid, [mech])
-        mission = system["missions"].get_mission(mid)
-        # If execution reaches here, the bug exists
-        assert len(mission["assigned_members"]) == 2, (
-            "BUG: Mission started with 1 mechanic, but required 2! "
-            "assign_mission() failed to count duplicates properly due to set()."
-        )
+        with pytest.raises(ValueError):
+            system["missions"].assign_mission(mid, [mech])
 
 
 # ============================================================
