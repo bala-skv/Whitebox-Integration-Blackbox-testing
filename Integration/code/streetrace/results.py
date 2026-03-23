@@ -15,6 +15,7 @@ class Results:
         self._race_mgmt = race_management
         self._inventory = inventory
         self._results = {}  # race_id -> list of {driver_id, position}
+        self._paid_races = set()
 
     def record_result(self, race_id, rankings):
         """Record results for a completed race.
@@ -68,10 +69,14 @@ class Results:
             raise ValueError(
                 f"No results recorded for race '{race_id}'."
             )
+        if race_id in self._paid_races:
+            return {}  # Prize already distributed, avoid double payout
 
         race = self._race_mgmt.get_race(race_id)
         total_prize = race["prize_money"]
         payouts = {}
+
+        self._paid_races.add(race_id)
 
         for result in results:
             position = result["position"]
