@@ -73,16 +73,18 @@ class RaceManagement:
                 f"Car '{car_id}' is not available (damaged or not found)."
             )
 
-        # Check for duplicate entries
-        for entry in race["entries"]:
-            if entry["driver_id"] == driver_id:
-                raise ValueError(
-                    f"Driver '{driver_id}' is already entered in this race."
-                )
-            if entry["car_id"] == car_id:
-                raise ValueError(
-                    f"Car '{car_id}' is already entered in this race."
-                )
+        # Check for duplicate entries across all active races
+        for r_id, other_race in self._races.items():
+            if other_race["status"] in ("open", "in_progress"):
+                for entry in other_race["entries"]:
+                    if entry["driver_id"] == driver_id:
+                        raise ValueError(
+                            f"Driver '{driver_id}' is already entered in an active race."
+                        )
+                    if entry["car_id"] == car_id:
+                        raise ValueError(
+                            f"Car '{car_id}' is already entered in an active race."
+                        )
 
         race["entries"].append({
             "driver_id": driver_id,
